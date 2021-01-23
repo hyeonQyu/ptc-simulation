@@ -7,20 +7,13 @@ public class GameManager : MonoBehaviour
 {
     [SerializeField]
     private Npc[] _npcs;
-    private PositionVectors _vectors;
-
-    // Start is called before the first frame update
-    void Start()
-    {
-        _vectors = GetComponent<PositionVectors>();
-    }
 
     // Update is called once per frame
     void Update()
     {
         if(Input.GetKeyDown(KeyCode.Q))
         {
-            _npcs[0].Move(_vectors.GetDestination(EDestination.Default), _vectors.GetLookAt(ELookAt.Default), () =>
+            _npcs[0].Move(EDestination.Default, ELookAt.Default, () =>
             {
                 UIManager.Instance.GetFrame(EFrame.Subtitle).Show();
                 _npcs[0].Tell(EScript.GoodMorning, () =>
@@ -28,6 +21,8 @@ public class GameManager : MonoBehaviour
                     _npcs[0].Tell(EScript.OffWork, () =>
                     {
                         UIManager.Instance.GetFrame(EFrame.Subtitle).Show(false);
+
+                        _npcs[0].Move(EDestination.Out, ELookAt.Default);
                     });
                 });
             });

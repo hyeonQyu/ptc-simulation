@@ -6,7 +6,8 @@ using UnityEngine;
 
 public enum EDestination
 {
-    Default
+    Default,
+    Out
 }
 
 public enum ELookAt

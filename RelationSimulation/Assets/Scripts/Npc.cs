@@ -24,6 +24,7 @@ public enum EScript
 
 [RequireComponent(typeof(AudioSource))]
 [RequireComponent(typeof(NavMeshAgent))]
+[RequireComponent(typeof(PositionVectors))]
 public class Npc : MonoBehaviour
 {
     public delegate void Callback();
@@ -32,6 +33,7 @@ public class Npc : MonoBehaviour
     private ENpcType _npcType;
     private NavMeshAgent _agent;
     private Animator _animator;
+    private PositionVectors _vectors;
 
     [SerializeField]
     private float _rotateSpeed = 15f;
@@ -42,6 +44,7 @@ public class Npc : MonoBehaviour
     {
         _agent = GetComponent<NavMeshAgent>();
         _animator = GetComponent<Animator>();
+        _vectors = GetComponent<PositionVectors>();
     }
 
     /// <summary>
@@ -75,11 +78,11 @@ public class Npc : MonoBehaviour
     /// <param name="dest">움직일 목적지</param>
     /// <param name="lookAt">움직인 후 바라볼 곳</param>
     /// <param name="callback">움직임과 회전이 끝난 후 실행할 내용</param>
-    public void Move(Vector3 dest, Vector3 lookAt, Callback callback = null)
+    public void Move(EDestination dest, ELookAt lookAt, Callback callback = null)
     {
-        _agent.SetDestination(dest);
+        _agent.SetDestination(_vectors.GetDestination(dest));
         _animator.SetBool(EAnimState.IsWalk.ToString(), true);
-        StartCoroutine(WaitForMoveFinish(lookAt, callback));
+        StartCoroutine(WaitForMoveFinish(_vectors.GetLookAt(lookAt), callback));
     }
 
     private IEnumerator WaitForMoveFinish(Vector3 lookAt, Callback callback)
