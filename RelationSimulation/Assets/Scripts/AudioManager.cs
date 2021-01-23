@@ -124,6 +124,5 @@ public class AudioManager : Singleton<AudioManager>
         {
             _audioClips.Add(EnumConverter.ToEnum<EAudioClip>(clip.name), clip);
         }
-        Debug.Log($"오디오 클립 개수: {clips.Length}");
     }
 }
