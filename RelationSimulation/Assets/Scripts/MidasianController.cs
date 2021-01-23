@@ -1,9 +1,7 @@
 ﻿using Nextwin.Client.Game;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
-public enum AnimState
+public enum EAnimState
 {
     Idle,
     IsWalk
@@ -13,13 +11,11 @@ public class MidasianController : PlayerController
 {
     protected override void OnMoveStart()
     {
-        _animator.SetBool(AnimState.IsWalk.ToString(), true);
-        Debug.Log("Move Start");
+        _animator.SetBool(EAnimState.IsWalk.ToString(), true);
     }
 
     protected override void OnMoveFinish()
     {
-        _animator.SetBool(AnimState.IsWalk.ToString(), false);
-        Debug.Log("Move Finish");
+        _animator.SetBool(EAnimState.IsWalk.ToString(), false);
     }
 }

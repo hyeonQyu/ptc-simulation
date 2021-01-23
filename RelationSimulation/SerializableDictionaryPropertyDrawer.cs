@@ -16,9 +16,6 @@ namespace Nextwin.Client.Util
 		[CustomPropertyDrawer(typeof(SerializableDictionary<string, AudioSource>))]
 		[CustomPropertyDrawer(typeof(SerializableDictionary<string, RawImage>))]
 		[CustomPropertyDrawer(typeof(SerializableDictionary<string, VideoPlayer>))]
-		[CustomPropertyDrawer(typeof(AudioSourceDictionary))]
-		[CustomPropertyDrawer(typeof(DestinationDictionary))]
-		[CustomPropertyDrawer(typeof(LookAtDictionary))]
 		public class SerializableDictionaryPropertyDrawer : PropertyDrawer
 		{
 			const string KeysFieldName = "_keys";
