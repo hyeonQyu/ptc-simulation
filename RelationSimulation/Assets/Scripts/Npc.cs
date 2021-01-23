@@ -1,7 +1,6 @@
 ﻿using Nextwin.Client.Util;
 using Nextwin.Util;
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -19,7 +18,8 @@ public enum ENpcType
 /// </summary>
 public enum EScript
 {
-
+    GoodMorning,
+    OffWork
 }
 
 [RequireComponent(typeof(AudioSource))]
@@ -36,6 +36,8 @@ public class Npc : MonoBehaviour
     [SerializeField]
     private float _rotateSpeed = 15f;
 
+    private UIFrameSubtitle _uiSubtitle;
+
     private void Start()
     {
         _agent = GetComponent<NavMeshAgent>();
@@ -47,12 +49,18 @@ public class Npc : MonoBehaviour
     /// </summary>
     /// <param name="script">재생할 대사</param>
     /// <param name="callback">Npc의 대사가 끝난 후 실행할 내용</param>
-    public void Tell(EScript script, Callback callback)
+    public void Tell(EScript script, Callback callback = null)
     {
         EAudioClip clip = EnumConverter.ToEnum<EAudioClip>(script.ToString());
         EAudioSource source = EnumConverter.ToEnum<EAudioSource>(_npcType.ToString());
 
         AudioManager.Instance.PlayAudio(clip, source);
+
+        if(_uiSubtitle == null)
+        {
+            _uiSubtitle = UIManager.Instance.GetFrame(EFrame.Subtitle) as UIFrameSubtitle;
+        }
+        _uiSubtitle.ShowScript(script);
 
         float playTime = AudioManager.Instance.GetAudioClipLength(clip) / AudioManager.Instance.GetAudioSourcePitch(source);
         ActionManager.Instance.ExecuteWithDelay(() =>
@@ -67,7 +75,7 @@ public class Npc : MonoBehaviour
     /// <param name="dest">움직일 목적지</param>
     /// <param name="lookAt">움직인 후 바라볼 곳</param>
     /// <param name="callback">움직임과 회전이 끝난 후 실행할 내용</param>
-    public void Move(Vector3 dest, Vector3 lookAt, Callback callback)
+    public void Move(Vector3 dest, Vector3 lookAt, Callback callback = null)
     {
         _agent.SetDestination(dest);
         _animator.SetBool(EAnimState.IsWalk.ToString(), true);
@@ -101,12 +109,12 @@ public class Npc : MonoBehaviour
 
         while(true)
         {
-            float angle = Mathf.Atan2(lookAt.x, lookAt.z) * Mathf.Rad2Deg;
-            Quaternion destRotation = Quaternion.Euler(0, angle, 0);
-            transform.rotation = Quaternion.Slerp(transform.rotation, destRotation, _rotateSpeed * Time.fixedDeltaTime);
+            Quaternion lookRotation = Quaternion.LookRotation(lookAt - transform.position);
+            transform.rotation = Quaternion.Lerp(transform.rotation, lookRotation, Time.deltaTime * _rotateSpeed);
+
             yield return waitForEndOfFrame;
 
-            if(IsSameRotation(destRotation))
+            if(IsSameRotation(lookRotation))
             {
                 break;
             }
@@ -117,13 +125,9 @@ public class Npc : MonoBehaviour
 
     private bool IsSameRotation(Quaternion destRotation)
     {
-        Vector3 diff = destRotation.eulerAngles - transform.rotation.eulerAngles;
+        float diff = Mathf.Abs(destRotation.eulerAngles.y - transform.rotation.eulerAngles.y);
 
-        float x = Mathf.Abs(diff.x);
-        float y = Mathf.Abs(diff.y);
-        float z = Mathf.Abs(diff.z);
-
-        if(x + y + z < 0.1f)
+        if(diff < 0.001f)
         {
             return true;
         }

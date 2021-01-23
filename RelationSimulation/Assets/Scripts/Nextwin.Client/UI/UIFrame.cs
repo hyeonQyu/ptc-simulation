@@ -10,10 +10,12 @@ namespace Nextwin.Client.UI
         private GameObject _shadeImageObject;
         private Image _shadeImage;
         private MaskableGraphic[] _graphics;
+        private float[] _alphas;
 
         protected virtual void Awake()
         {
             _graphics = GetComponentsInChildren<MaskableGraphic>();
+            InitAlphas();
             CreateShadeImage();
         }
 
@@ -94,11 +96,11 @@ namespace Nextwin.Client.UI
         /// <param name="toTransparent">투명 여부</param>
         private void SetGraphicsTransparency(bool toTransparent)
         {
-            float alpha = toTransparent ? 0f : 1f;
-
             Color[] graphicColors = GetGraphicColors();
+
             for(int i = 0; i < graphicColors.Length; i++)
             {
+                float alpha = toTransparent ? 0f : _alphas[i];
                 graphicColors[i].a = alpha;
                 _graphics[i].color = graphicColors[i];
             }
@@ -112,6 +114,15 @@ namespace Nextwin.Client.UI
                 colors[i] = _graphics[i].color;
             }
             return colors;
+        }
+
+        private void InitAlphas()
+        {
+            _alphas = new float[_graphics.Length];
+            for(int i = 0; i < _graphics.Length; i++)
+            {
+                _alphas[i] = _graphics[i].color.a;
+            }
         }
 
         /// <summary>

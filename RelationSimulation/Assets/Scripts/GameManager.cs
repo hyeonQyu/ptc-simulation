@@ -22,7 +22,14 @@ public class GameManager : MonoBehaviour
         {
             _npcs[0].Move(_vectors.GetDestination(EDestination.Default), _vectors.GetLookAt(ELookAt.Default), () =>
             {
-                Debug.Log("움직임 끝남");
+                UIManager.Instance.GetFrame(EFrame.Subtitle).Show();
+                _npcs[0].Tell(EScript.GoodMorning, () =>
+                {
+                    _npcs[0].Tell(EScript.OffWork, () =>
+                    {
+                        UIManager.Instance.GetFrame(EFrame.Subtitle).Show(false);
+                    });
+                });
             });
         }
     }

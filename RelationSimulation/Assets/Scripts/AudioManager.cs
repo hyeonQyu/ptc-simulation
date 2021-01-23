@@ -7,7 +7,8 @@ using UnityEngine;
 
 public enum EAudioClip
 {
-    GoodMorning
+    GoodMorning,
+    OffWork
 }
 
 public enum EAudioSource

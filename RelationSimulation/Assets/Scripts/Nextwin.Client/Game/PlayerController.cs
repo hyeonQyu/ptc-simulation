@@ -443,7 +443,7 @@ namespace Nextwin.Client.Game
             Vector2 mouseDelta = new Vector2(Input.GetAxis("Mouse X") * sensitivity, Input.GetAxis("Mouse Y") * sensitivity);
             Vector3 camAngle = _pivot.rotation.eulerAngles;
             float x = camAngle.x - mouseDelta.y;
-            x = x < 180f ? Mathf.Clamp(x, -1f, 70f) : Mathf.Clamp(x, 345f, 361f);
+            x = x < 180f ? Mathf.Clamp(x, -1f, 70f) : Mathf.Clamp(x, 300f, 361f);
 
             _body.rotation = Quaternion.Euler(0, camAngle.y + mouseDelta.x, camAngle.z);
             _pivot.rotation = Quaternion.Euler(x, camAngle.y + mouseDelta.x, camAngle.z);
