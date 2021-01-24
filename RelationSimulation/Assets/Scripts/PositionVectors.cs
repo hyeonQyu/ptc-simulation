@@ -1,18 +1,24 @@
 ﻿using Nextwin.Client.Util;
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public enum EDestination
 {
-    Default,
-    Out
+    Entrance,
+    Exit,
+    SeatMember,
+    SeatDirector,
+    Player,
+    Director
 }
 
 public enum ELookAt
 {
-    Default
+    None,
+    Player,
+    ComputerMember,
+    ComputerDirector,
+    Director
 }
 
 [Serializable]

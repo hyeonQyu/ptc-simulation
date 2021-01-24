@@ -6,11 +6,12 @@ using UnityEngine.AI;
 
 public enum ENpcType
 {
-    MaleA,
-    MaleB,
-    Female,
-    Zombie,
-    Police
+    Director,
+    GirlFriend,
+    Leader1,
+    Leader2,
+    Member,
+    Player
 }
 
 /// <summary>
@@ -18,8 +19,38 @@ public enum ENpcType
 /// </summary>
 public enum EScript
 {
-    GoodMorning,
-    OffWork
+    Call1,
+    Call2,
+
+    DontCall,
+
+    TodayWhy,
+    Broken,
+    Why,
+    Forgot,
+    NoOffWork,
+
+    Omg,
+
+    Hey,
+    Pardon,
+    Busy,
+    Ok,
+
+    Which,
+    NoRice,
+    Sorry,
+
+    SelectAgain,
+    Which2,
+
+    Happy,
+    Finish,
+
+    Order,
+    Wtf,
+
+    Good
 }
 
 [RequireComponent(typeof(AudioSource))]
@@ -69,7 +100,7 @@ public class Npc : MonoBehaviour
         ActionManager.Instance.ExecuteWithDelay(() =>
         {
             callback?.Invoke();
-        }, playTime);
+        }, playTime + 0.5f);
     }
 
     /// <summary>

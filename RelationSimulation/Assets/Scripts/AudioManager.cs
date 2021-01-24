@@ -7,17 +7,48 @@ using UnityEngine;
 
 public enum EAudioClip
 {
-    GoodMorning,
-    OffWork
+    Call1,
+    Call2,
+
+    DontCall,
+
+    TodayWhy,
+    Broken,
+    Why,
+    Forgot,
+    NoOffWork,
+
+    Omg,
+
+    Hey,
+    Pardon,
+    Busy,
+    Ok,
+
+    Which,
+    NoRice,
+    Sorry,
+
+    SelectAgain,
+    Which2,
+    
+    Happy,
+    Finish,
+
+    Order,
+    Wtf,
+
+    Good
 }
 
 public enum EAudioSource
 {
-    MaleA,
-    MaleB,
-    Female,
-    Zombie,
-    Police
+    Director,
+    GirlFriend,
+    Leader1,
+    Leader2,
+    Member,
+    Player
 }
 
 [Serializable]

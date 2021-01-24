@@ -7,10 +7,11 @@ public enum EFrame
 
 public enum EDialog
 {
-
+    Selection,
+    Report
 }
 
-public class UIManager : UIManagerBase<UIManager, EFrame, EDialog>
+public class UIManager:UIManagerBase<UIManager, EFrame, EDialog>
 {
-    
+
 }
