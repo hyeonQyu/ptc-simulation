@@ -1,7 +1,6 @@
 ﻿using Nextwin.Client.Util;
 using Nextwin.Util;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -38,7 +37,12 @@ public enum EAudioClip
     Order,
     Wtf,
 
-    Good
+    Good,
+
+    Success,
+    Fail,
+    Fist,
+    Paper
 }
 
 public enum EAudioSource

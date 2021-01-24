@@ -8,8 +8,12 @@ public enum EDestination
     Exit,
     SeatMember,
     SeatDirector,
+    SeatLeader1,
+    SeatLeader2,
     Player,
-    Director
+    Director,
+    LobbyLeader1,
+    LobbyLeader2,
 }
 
 public enum ELookAt
@@ -18,7 +22,11 @@ public enum ELookAt
     Player,
     ComputerMember,
     ComputerDirector,
-    Director
+    SeatLeader1,
+    SeatLeader2,
+    LobbyLeader1,
+    Director,
+    Entrance
 }
 
 [Serializable]

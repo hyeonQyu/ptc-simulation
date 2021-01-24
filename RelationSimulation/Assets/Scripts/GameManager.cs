@@ -164,19 +164,23 @@ public class GameManager : Singleton<GameManager>
 
     private void Situation()
     {
-        _leaders[0].Tell(EScript.TodayWhy, () =>
+        _leaders[0].Move(EDestination.LobbyLeader1, ELookAt.Entrance);
+        _leaders[1].Move(EDestination.LobbyLeader2, ELookAt.LobbyLeader1, () =>
         {
-            _leaders[1].Tell(EScript.Broken, () =>
+            _leaders[0].Tell(EScript.TodayWhy, () =>
             {
-                _leaders[0].Tell(EScript.Why, () =>
+                _leaders[1].Tell(EScript.Broken, () =>
                 {
-                    _leaders[1].Tell(EScript.Forgot, () =>
+                    _leaders[0].Tell(EScript.Why, () =>
                     {
-                        _leaders[1].Tell(EScript.NoOffWork, () =>
+                        _leaders[1].Tell(EScript.Forgot, () =>
                         {
-                            _me.Tell(EScript.Omg, () =>
+                            _leaders[1].Tell(EScript.NoOffWork, () =>
                             {
-                                ToNextFlow();
+                                _me.Tell(EScript.Omg, () =>
+                                {
+                                    ToNextFlow();
+                                });
                             });
                         });
                     });
