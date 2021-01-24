@@ -25,6 +25,11 @@ public class UIDialogSelection : UIDialog<EDialog>
         _buttonRiceBall.onClick.AddListener(OnClickRiceBall);
     }
 
+    public void RemoveRiceBallButton()
+    {
+        _buttonRiceBall.gameObject.SetActive(false);
+    }
+
     private void OnClickCandy()
     {
         GameManager.Instance.CanGoNextFlow = true;

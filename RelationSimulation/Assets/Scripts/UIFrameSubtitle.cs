@@ -12,15 +12,53 @@ public class UIFrameSubtitle : UIFrame<EFrame>
     [SerializeField]
     private SubtitleDictionary _scripts;
 
-    private Text _text;
+    [SerializeField]
+    private Text _teller;
+    [SerializeField]
+    private Text _script;
 
-    private void Start()
+    public override void Show(bool isActive = true)
     {
-        _text = GetComponentInChildren<Text>();
+        gameObject.SetActive(isActive);
     }
 
-    public void ShowScript(EScript script)
+    public void ShowScript(EScript script, ENpcType npcType)
     {
-        _text.text = _scripts[script];
+        _teller.text = GetTeller(npcType);
+        _script.text = _scripts[script];
+    }
+
+    private string GetTeller(ENpcType npcType)
+    {
+        string teller = "";
+
+        switch(npcType)
+        {
+            case ENpcType.Director:
+                teller = "박부장님";
+                break;
+
+            case ENpcType.GirlFriend:
+                teller = "여자친구";
+                break;
+
+            case ENpcType.Leader1:
+                teller = "오과장님";
+                break;
+
+            case ENpcType.Leader2:
+                teller = "김과장님";
+                break;
+
+            case ENpcType.Member:
+                teller = "윤대리님";
+                break;
+
+            case ENpcType.Player:
+                teller = "나";
+                break;
+        }
+
+        return teller;
     }
 }

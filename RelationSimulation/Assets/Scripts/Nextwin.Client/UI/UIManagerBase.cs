@@ -62,7 +62,7 @@ namespace Nextwin.Client.UI
                 }
 
                 dic.Add(ui.ID, ui);
-                ui.Show(false);
+                ui.gameObject.SetActive(false);
             }
         }
     }

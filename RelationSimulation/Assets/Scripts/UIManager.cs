@@ -1,8 +1,9 @@
 ﻿using Nextwin.Client.UI;
+using Nextwin.Client.Util;
 
 public enum EFrame
 {
-    Subtitle
+    Subtitle,
 }
 
 public enum EDialog

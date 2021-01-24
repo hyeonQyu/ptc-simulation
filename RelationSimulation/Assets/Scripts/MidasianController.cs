@@ -12,24 +12,22 @@ public enum EAnimState
 
 public class MidasianController : PlayerController
 {
-    public bool IsGrabbing
-    {
-        get
-        {
-            return _item != null;
-        }
-    }
+    public bool IsGrabbing { get; private set; }
     
     [SerializeField]
     private Transform _hand;
     private GameObject _item;
+    private GameObject[] _items;
 
     [SerializeField]
-    private Transform _director;
+    private Transform _directorTransform;
+    private DirectorNpc _director;
 
     protected override void Start()
     {
         base.Start();
+        _items = new GameObject[3];
+        _director = _directorTransform.GetComponent<DirectorNpc>();
     }
 
     protected override void Update()
@@ -44,6 +42,19 @@ public class MidasianController : PlayerController
         item.transform.localPosition = new Vector3(-0.0539f, 0.0135f, 0.1544f);
 
         _item = item;
+        IsGrabbing = true;
+    }
+
+    public void GrabItems(GameObject[] items)
+    {
+        for(int i = 0; i < items.Length; i++)
+        {
+            items[i].transform.parent = _hand;
+            items[i].transform.localPosition = new Vector3(-0.0539f, 0.0135f, 0.1544f);
+
+            _items[i] = items[i];
+        }
+        IsGrabbing = true;
     }
 
     protected override void OnMoveStart()
@@ -58,7 +69,7 @@ public class MidasianController : PlayerController
 
     private void OnInputAttack()
     {
-        if(Input.GetMouseButtonDown(0))
+        if(Input.GetKeyDown(KeyCode.F))
         {
             _animator.SetBool(EAnimState.IsAttack.ToString(), true);
             ActionManager.Instance.ExecuteWithDelay(() =>
@@ -70,6 +81,10 @@ public class MidasianController : PlayerController
             {
                 ReleaseItem();
             }
+            else if(GameManager.Instance.Flow == EFlow.GiveReport1 || GameManager.Instance.Flow == EFlow.GiveReport2)
+            {
+                ReleaseItems();
+            }
         }
     }
 
@@ -78,18 +93,26 @@ public class MidasianController : PlayerController
     /// </summary>
     private void ReleaseItem()
     {
-        StartCoroutine(MoveItem());
+        StartCoroutine(MoveItem(_item));
     }
 
-    private IEnumerator MoveItem()
+    private void ReleaseItems()
+    {
+        for(int i = 0; i < _items.Length; i++)
+        {
+            StartCoroutine(MoveItem(_items[i], i));
+        }
+    }
+
+    private IEnumerator MoveItem(GameObject item, int index = -1)
     {
         WaitForSeconds waitForSeconds = new WaitForSeconds(0.0001f);
 
         while(true)
         {
-            _item.transform.position = Vector3.Lerp(_item.transform.position, _director.position, Time.deltaTime);
+            item.transform.position = Vector3.Lerp(item.transform.position, _directorTransform.position, Time.deltaTime);
 
-            if(IsItemReached())
+            if(IsItemReached(item))
             {
                 break;
             }
@@ -97,13 +120,23 @@ public class MidasianController : PlayerController
             yield return waitForSeconds;
         }
 
-        _item = null;
+        if(index == -1)
+        {
+            _director.Item = item;
+        }
+        else
+        {
+            _director.Items[index] = item;
+        }
+        IsGrabbing = false;
     }
 
-    private bool IsItemReached()
+    private bool IsItemReached(GameObject item)
     {
-        Vector3 diffVector = _item.transform.position - _director.position;
-        if(Mathf.Abs(diffVector.x) + Mathf.Abs(diffVector.y) + Mathf.Abs(diffVector.z) < 0.01f)
+        Vector3 diffVector = item.transform.position - _directorTransform.position;
+        float diff = Mathf.Abs(diffVector.x) + Mathf.Abs(diffVector.y) + Mathf.Abs(diffVector.z);
+
+        if(diff < 0.8f)
         {
             return true;
         }

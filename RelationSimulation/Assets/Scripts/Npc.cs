@@ -55,7 +55,6 @@ public enum EScript
 
 [RequireComponent(typeof(AudioSource))]
 [RequireComponent(typeof(NavMeshAgent))]
-[RequireComponent(typeof(PositionVectors))]
 public class Npc : MonoBehaviour
 {
     public delegate void Callback();
@@ -71,11 +70,11 @@ public class Npc : MonoBehaviour
 
     private UIFrameSubtitle _uiSubtitle;
 
-    private void Start()
+    protected virtual void Start()
     {
         _agent = GetComponent<NavMeshAgent>();
         _animator = GetComponent<Animator>();
-        _vectors = GetComponent<PositionVectors>();
+        _vectors = PositionVectors.Instance;
     }
 
     /// <summary>
@@ -94,13 +93,18 @@ public class Npc : MonoBehaviour
         {
             _uiSubtitle = UIManager.Instance.GetFrame(EFrame.Subtitle) as UIFrameSubtitle;
         }
-        _uiSubtitle.ShowScript(script);
+        _uiSubtitle.Show();
+        _uiSubtitle.ShowScript(script, _npcType);
 
         float playTime = AudioManager.Instance.GetAudioClipLength(clip) / AudioManager.Instance.GetAudioSourcePitch(source);
         ActionManager.Instance.ExecuteWithDelay(() =>
         {
-            callback?.Invoke();
-        }, playTime + 0.5f);
+            _uiSubtitle.Show(false);
+            ActionManager.Instance.ExecuteWithDelay(() =>
+            {
+                callback?.Invoke();
+            }, 0.3f);
+        }, playTime + 0.01f);
     }
 
     /// <summary>

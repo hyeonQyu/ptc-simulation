@@ -52,7 +52,10 @@ public enum EAudioSource
     Leader1,
     Leader2,
     Member,
-    Player
+    Player,
+    Paper1,
+    Paper2,
+    Paper3
 }
 
 [Serializable]

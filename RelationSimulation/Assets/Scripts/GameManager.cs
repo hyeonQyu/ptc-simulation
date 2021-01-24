@@ -6,7 +6,6 @@ public enum EFlow
     Call,
     Situation,
     Hint,
-    ComeIn,
     SelectRiceBall,
     GiveRiceBall,
     SelectAgain,
@@ -26,7 +25,7 @@ public class GameManager : Singleton<GameManager>
     private bool _isOnFlow = false;
 
     [SerializeField]
-    private Npc _director;
+    private DirectorNpc _director;
     [SerializeField]
     private Npc[] _leaders;
     [SerializeField]
@@ -45,32 +44,32 @@ public class GameManager : Singleton<GameManager>
     private GameObject _particleSelection;
     private GameObject _particleReport;
 
+    [SerializeField]
+    private Transform _reportObject;
+    [SerializeField]
+    private GameObject[] _reports;
+    private Vector3[] _reportPositions;
+
+    private int _frame;
+
     private void Start()
     {
         _player = _me.gameObject.GetComponent<MidasianController>();
 
-        _particleSelection = _selectionBox.transform.GetChild(0).gameObject;
-        _particleSelection.SetActive(false);
-
-        _particleReport = _reportBox.transform.GetChild(0).gameObject;
-        _particleReport.SetActive(false);
-
-        OtherCollisionChecker selectionBoxCollisionChecker = _selectionBox.gameObject.AddComponent<OtherCollisionChecker>();
-        selectionBoxCollisionChecker.AddCollisionEvent(CollisionEvent.OnTriggerEnter, (collider) =>
-        {
-            OnEnterSelectionBox(collider);
-        });
-
-        OtherCollisionChecker reportBoxCollisionChecker = _reportBox.gameObject.AddComponent<OtherCollisionChecker>();
-        reportBoxCollisionChecker.AddCollisionEvent(CollisionEvent.OnTriggerEnter, (collider) =>
-        {
-            OnEnterReportBox(collider);
-        });
+        SetParticles();
+        AddCollisionCheckers();
+        InitReportsPositions();
     }
 
     // Update is called once per frame
     void Update()
     {
+        if(_frame < 100)
+        {
+            _frame++;
+            return;
+        }
+
         GoFlow();
     }
 
@@ -94,10 +93,6 @@ public class GameManager : Singleton<GameManager>
 
             case EFlow.Hint:
                 Hint();
-                break;
-
-            case EFlow.ComeIn:
-                ComeIn();
                 break;
 
             case EFlow.SelectRiceBall:
@@ -177,6 +172,9 @@ public class GameManager : Singleton<GameManager>
                         {
                             _leaders[1].Tell(EScript.NoOffWork, () =>
                             {
+                                _leaders[0].Move(EDestination.SeatLeader1, ELookAt.SeatLeader2);
+                                _leaders[1].Move(EDestination.SeatLeader2, ELookAt.SeatLeader1);
+
                                 _me.Tell(EScript.Omg, () =>
                                 {
                                     ToNextFlow();
@@ -191,30 +189,27 @@ public class GameManager : Singleton<GameManager>
 
     private void Hint()
     {
-        _member.Tell(EScript.Hey, () =>
+        _member.Move(EDestination.Player, ELookAt.Player, () =>
         {
-            _me.Tell(EScript.Pardon, () =>
+            _member.Tell(EScript.Hey, () =>
             {
-                _member.Tell(EScript.Busy, () =>
+                _me.Tell(EScript.Pardon, () =>
                 {
-                    _me.Tell(EScript.Ok, () =>
+                    _member.Tell(EScript.Busy, () =>
                     {
-                        _member.Move(EDestination.SeatMember, ELookAt.ComputerMember, () =>
+                        _me.Tell(EScript.Ok, () =>
                         {
-                            _particleSelection.SetActive(true);
-                            ToNextFlow();
+                            _member.Move(EDestination.SeatMember, ELookAt.ComputerMember, () =>
+                            {
+                                _particleSelection.SetActive(true);
+                                ToNextFlow();
+                            });
                         });
+
+                        _director.Move(EDestination.SeatDirector, ELookAt.ComputerDirector);
                     });
                 });
             });
-        });
-    }
-
-    private void ComeIn()
-    {
-        _director.Move(EDestination.SeatDirector, ELookAt.ComputerDirector, () =>
-        {
-            ToNextFlow();
         });
     }
     
@@ -241,19 +236,20 @@ public class GameManager : Singleton<GameManager>
             return;
         }
 
-        // 주먹밥 건내야 아래 실행
         ActionManager.Instance.ExecuteWithDelay(() =>
         {
-            // 화남 표시
             ActionManager.Instance.ExecuteWithDelay(() =>
             {
                 _director.Move(EDestination.SeatDirector, ELookAt.Player, () =>
                 {
-                    // 3초 후 부장이 주먹밥을 집어던짐
+                    _director.ThrowItem();
+
                     ActionManager.Instance.ExecuteWithDelay(() =>
                     {
                         _director.Tell(EScript.NoRice, () =>
                         {
+                            _director.Move(EDestination.SeatDirector, ELookAt.ComputerDirector);
+
                             _me.Tell(EScript.Sorry, () =>
                             {
                                 ToNextFlow();
@@ -284,6 +280,9 @@ public class GameManager : Singleton<GameManager>
 
         _me.Tell(EScript.Which2, () =>
         {
+            UIDialogSelection uiDialogSelection = UIManager.Instance.GetDialog(EDialog.Selection) as UIDialogSelection;
+            uiDialogSelection.RemoveRiceBallButton();
+            uiDialogSelection.Show();
             ToNextFlow();
         });
     }
@@ -296,15 +295,20 @@ public class GameManager : Singleton<GameManager>
             return;
         }
 
-        // 기뻐함
-        _director.Tell(EScript.Happy, () =>
+        _director.Move(EDestination.SeatDirector, ELookAt.Player, () =>
         {
-            _director.Tell(EScript.Finish, () =>
+            _director.Tell(EScript.Happy, () =>
             {
-                _me.Tell(EScript.Ok, () =>
+                GameObject.Find("Candy").SetActive(false);
+                _director.Tell(EScript.Finish, () =>
                 {
-                    _particleReport.SetActive(true);
-                    ToNextFlow();
+                    _director.Move(EDestination.SeatDirector, ELookAt.ComputerDirector);
+
+                    _me.Tell(EScript.Ok, () =>
+                    {
+                        _particleReport.SetActive(true);
+                        ToNextFlow();
+                    });
                 });
             });
         });
@@ -342,13 +346,21 @@ public class GameManager : Singleton<GameManager>
 
         ActionManager.Instance.ExecuteWithDelay(() =>
         {
-            _director.Tell(EScript.Wtf, () =>
+            _director.Move(EDestination.SeatDirector, ELookAt.Player, () =>
             {
-                // 부장이 보고서를 던짐
-                _particleReport.SetActive(true);
-                ToNextFlow();
+                _director.Tell(EScript.Wtf, () =>
+                {
+                    _director.ThrowItems();
+                    _particleReport.SetActive(true);
+
+                    ActionManager.Instance.ExecuteWithDelay(() =>
+                    {
+                        _director.Move(EDestination.SeatDirector, ELookAt.ComputerDirector);
+                    }, 2f);
+                    ToNextFlow();
+                });
             });
-        }, 2f);
+        }, 4f);
     }
     
     private void RearrangeReport2()
@@ -383,16 +395,24 @@ public class GameManager : Singleton<GameManager>
 
         ActionManager.Instance.ExecuteWithDelay(() =>
         {
-            _director.Tell(EScript.Good, () =>
+            _director.Move(EDestination.SeatDirector, ELookAt.Player, () =>
             {
-                ToNextFlow();
+                for(int i = 0; i < _reports.Length; i++)
+                {
+                    _reports[i].SetActive(false);
+                }
+
+                _director.Tell(EScript.Good, () =>
+                {
+                    ToNextFlow();
+                });
             });
         }, 2f);
     }
 
     private void Finish()
     {
-
+        AudioManager.Instance.PlayAudio(EAudioClip.Success, EAudioSource.Paper1);
     }
 
     private void ToNextFlow()
@@ -414,7 +434,7 @@ public class GameManager : Singleton<GameManager>
             return;
         }
 
-        if(Flow == EFlow.ComeIn || Flow == EFlow.SelectRiceBall || Flow == EFlow.SelectCandy)
+        if(Flow == EFlow.SelectRiceBall || Flow == EFlow.SelectCandy)
         {
             _particleSelection.SetActive(false);
             CanGoNextFlow = true;
@@ -435,8 +455,53 @@ public class GameManager : Singleton<GameManager>
 
         if(Flow == EFlow.RearrangeReport1 || Flow == EFlow.RearrangeReport2)
         {
+            SpawnReports();
             _particleReport.SetActive(false);
             CanGoNextFlow = true;
+        }
+    }
+
+    private void SpawnReports()
+    {
+        for(int i = 0; i < _reports.Length; i++)
+        {
+            _reports[i].transform.parent = _reportObject;
+            _reports[i].transform.localRotation = Quaternion.Euler(0, 90, 0);
+            _reports[i].transform.position = _reportPositions[i];
+        }
+    }
+
+    private void SetParticles()
+    {
+        _particleSelection = _selectionBox.transform.GetChild(0).gameObject;
+        _particleSelection.SetActive(false);
+
+        _particleReport = _reportBox.transform.GetChild(0).gameObject;
+        _particleReport.SetActive(false);
+    }
+
+    private void AddCollisionCheckers()
+    {
+        OtherCollisionChecker selectionBoxCollisionChecker = _selectionBox.gameObject.AddComponent<OtherCollisionChecker>();
+        selectionBoxCollisionChecker.AddCollisionEvent(CollisionEvent.OnTriggerEnter, (collider) =>
+        {
+            OnEnterSelectionBox(collider);
+        });
+
+        OtherCollisionChecker reportBoxCollisionChecker = _reportBox.gameObject.AddComponent<OtherCollisionChecker>();
+        reportBoxCollisionChecker.AddCollisionEvent(CollisionEvent.OnTriggerEnter, (collider) =>
+        {
+            OnEnterReportBox(collider);
+        });
+    }
+
+    private void InitReportsPositions()
+    {
+        _reportPositions = new Vector3[_reports.Length];
+
+        for(int i = 0; i < _reports.Length; i++)
+        {
+            _reportPositions[i] = _reports[i].transform.position;
         }
     }
 }

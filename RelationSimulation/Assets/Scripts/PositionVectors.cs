@@ -37,11 +37,18 @@ public class LookAtDictionary : SerializableDictionary<ELookAt, Transform> { }
 
 public class PositionVectors : MonoBehaviour
 {
+    public static PositionVectors Instance { get; private set; }
+
     [SerializeField]
     private DestinationDictionary _destinations;
 
     [SerializeField]
     private LookAtDictionary _lookAts;
+
+    private void Awake()
+    {
+        Instance = this;
+    }
 
     public Vector3 GetDestination(EDestination dest)
     {
