@@ -9,16 +9,21 @@ public class DirectorNpc : Npc
     [SerializeField]
     private Transform _throwingPosition;
 
+    private UIFrameGuage _uiFrameGuage;
+
     protected override void Start()
     {
         base.Start();
+
         Items = new GameObject[3];
+        _uiFrameGuage = UIManager.Instance.GetFrame(EFrame.Guage) as UIFrameGuage;
     }
 
     public void ThrowItem()
     {
         StartCoroutine(MoveItem(Item));
         AudioManager.Instance.PlayAudio(EAudioClip.Fist, EAudioSource.Paper1);
+        _uiFrameGuage.RaiseGuage();
     }
 
     public void ThrowItems()
@@ -28,6 +33,7 @@ public class DirectorNpc : Npc
             StartCoroutine(MoveItem(Items[i], true));
             MakeSound(i);
         }
+        _uiFrameGuage.RaiseGuage();
     }
 
     private void MakeSound(int index)

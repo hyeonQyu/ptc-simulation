@@ -64,7 +64,7 @@ public class GameManager : Singleton<GameManager>
     // Update is called once per frame
     void Update()
     {
-        if(_frame < 100)
+        if(_frame < 40)
         {
             _frame++;
             return;
@@ -139,17 +139,25 @@ public class GameManager : Singleton<GameManager>
 
     private void Call()
     {
-        _girlFriend.Tell(EScript.Call1, () =>
+        AudioManager.Instance.PlayAudio(EAudioClip.BellRing, EAudioSource.Paper1, () =>
         {
-            _girlFriend.Tell(EScript.Call2, () =>
+            _girlFriend.Tell(EScript.Call1, () =>
             {
-                _director.Move(EDestination.Entrance, ELookAt.Player, () =>
+                _girlFriend.Tell(EScript.Call2, () =>
                 {
-                    _director.Tell(EScript.DontCall, () =>
+                    AudioManager.Instance.PlayAudio(EAudioClip.CallCut, EAudioSource.Paper1);
+                    UIManager.Instance.GetFrame(EFrame.Guage).Show();
+
+                    _director.Move(EDestination.Entrance, ELookAt.Player, () =>
                     {
-                        _director.Move(EDestination.Exit, ELookAt.None, () =>
+                        _director.Tell(EScript.DontCall, () =>
                         {
-                            ToNextFlow();
+                            AudioManager.Instance.PlayAudio(EAudioClip.Bgm, EAudioSource.Bgm);
+
+                            _director.Move(EDestination.Exit, ELookAt.None, () =>
+                            {
+                                ToNextFlow();
+                            });
                         });
                     });
                 });
@@ -332,8 +340,8 @@ public class GameManager : Singleton<GameManager>
                 {
                     ToNextFlow();
                 });
-            }, 1f);
-        }, 3f);
+            }, 0.5f);
+        }, 1f);
     }
 
     private void GiveReport1()
@@ -381,8 +389,8 @@ public class GameManager : Singleton<GameManager>
                 {
                     ToNextFlow();
                 });
-            }, 1f);
-        }, 3f);
+            }, 0.5f);
+        }, 1f);
     }
 
     private void GiveReport2()
@@ -412,6 +420,8 @@ public class GameManager : Singleton<GameManager>
 
     private void Finish()
     {
+        UIManager.Instance.GetFrame(EFrame.Shade).Show();
+        AudioManager.Instance.Pause(EAudioSource.Bgm);
         AudioManager.Instance.PlayAudio(EAudioClip.Success, EAudioSource.Paper1);
     }
 

@@ -6,6 +6,7 @@ using System;
 using UnityEngine.UI;
 using UnityEngine.Video;
 
+#if UNITY_EDITOR
 namespace Nextwin.Client.Util
 {
     namespace Editor
@@ -580,3 +581,4 @@ namespace Nextwin.Client.Util
 		}
 	}
 }
+#endif

@@ -42,7 +42,12 @@ public enum EAudioClip
     Success,
     Fail,
     Fist,
-    Paper
+    Paper,
+
+    Bgm,
+
+    BellRing,
+    CallCut
 }
 
 public enum EAudioSource
@@ -55,7 +60,8 @@ public enum EAudioSource
     Player,
     Paper1,
     Paper2,
-    Paper3
+    Paper3,
+    Bgm
 }
 
 [Serializable]
@@ -63,6 +69,8 @@ public class AudioSourceDictionary:SerializableDictionary<EAudioSource, AudioSou
 
 public class AudioManager : Singleton<AudioManager>
 {
+    public delegate void Callback();
+
     protected Dictionary<EAudioClip, AudioClip> _audioClips = new Dictionary<EAudioClip, AudioClip>();
     [SerializeField, Header("Key: AudioSource layer / Value: AudioSource object")]
     protected AudioSourceDictionary _audioSources;
@@ -83,11 +91,17 @@ public class AudioManager : Singleton<AudioManager>
     /// </summary>
     /// <param name="auidoClipName">재생하려는 오디오 클립 이름</param>
     /// <param name="audioSourceKey">오디오 클립이 재생될 오디오소스 레이어 이름</param>
-    public virtual void PlayAudio(EAudioClip auidoClipName, EAudioSource audioSourceKey)
+    public virtual void PlayAudio(EAudioClip auidoClipName, EAudioSource audioSourceKey, Callback callback = null)
     {
         AudioSource source = _audioSources[audioSourceKey];
         source.clip = _audioClips[auidoClipName];
         source.Play();
+
+        float playTime = source.clip.length / source.pitch;
+        ActionManager.Instance.ExecuteWithDelay(() =>
+        {
+            callback?.Invoke();
+        }, playTime + 0.1f);
     }
 
     /// <summary>

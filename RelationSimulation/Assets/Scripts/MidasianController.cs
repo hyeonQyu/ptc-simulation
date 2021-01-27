@@ -108,11 +108,17 @@ public class MidasianController : PlayerController
     {
         WaitForSeconds waitForSeconds = new WaitForSeconds(0.0001f);
 
+        int i = 0;
         while(true)
         {
             item.transform.position = Vector3.Lerp(item.transform.position, _directorTransform.position, Time.deltaTime);
 
+            i++;
             if(IsItemReached(item))
+            {
+                break;
+            }
+            else if(i > 140)
             {
                 break;
             }

@@ -1,9 +1,10 @@
 ﻿using Nextwin.Client.UI;
-using Nextwin.Client.Util;
 
 public enum EFrame
 {
     Subtitle,
+    Guage,
+    Shade
 }
 
 public enum EDialog
@@ -12,7 +13,6 @@ public enum EDialog
     Report
 }
 
-public class UIManager:UIManagerBase<UIManager, EFrame, EDialog>
+public class UIManager : UIManagerBase<UIManager, EFrame, EDialog>
 {
-
 }
